@@ -46,4 +46,90 @@ const app = express();
 
 app.use(bodyParser.json());
 
+
+let todos=[];
+
+function findIndex(arr,IDD)
+{
+  for(let i=0;i<arr.length;i++)
+  {
+    if(arr[i].id === IDD)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function removeAtindex(arr,ind)
+{
+  let newArray = [];
+  for(let i=0;i<arr.length;i++)
+  {
+    if(i !== ind)
+    {
+      newArray.push(arr[i]);
+    }
+  }
+  return newArray;
+}
+
+app.get('/todos', (req,res) => {
+  res.json(todos);
+});
+
+
+app.post('/todos', (req,res) => {
+  const newTodo = {
+    id: Math.floor(Math.random() * 1000000),
+    title: req.body.title,
+    description: req.body.description
+  };
+  todos.push(newTodo);
+  res.status(201).json(newTodo);
+});
+
+app.delete('/todos/:id', (req,res)=> {
+  const todoIndex = findIndex(todos,parseInt(req.params.id));
+  if(todoIndex === -1)
+  {
+    res.status(404).send();
+  }
+  else
+  {
+    todos=removeAtindex(todos,todoIndex);
+    res.status(200).send();
+  }
+});
+
+app.get('/todos/:id', (req,res)=> {
+  const IndexOfId = findIndex(todos,parseInt(req.params.id));
+  if(IndexOfId === -1)
+  {
+    res.status(404).send();
+  }
+  else{
+    res.json(todos[IndexOfId]);
+  }
+});
+
+app.put('/todos/:id', (req,res)=> {
+  const IndexOfId = findIndex(todos,parseInt(req.params.id));
+  if(IndexOfId === -1)
+  {
+    res.status(404).send();
+  }
+  else
+  {
+    todos[IndexOfId].title = req.body.title;
+    todos[IndexOfId].description = req.body.description;
+    res.json(todos[IndexOfId]);
+  }
+});
+
+app.use((req, res, next) => {
+  res.status(404).send();
+});
+
+
 module.exports = app;
